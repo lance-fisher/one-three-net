@@ -9,6 +9,9 @@
 <meta property="og:description" content="Full-stack builder, team leader, and founder. Custom apps, trading systems, games, and Fisher One-Three.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://one-three.net">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Lance Fisher — Builder. Leader. Father.">
+<meta name="twitter:description" content="Full-stack builder, team leader, and founder. Custom apps, trading systems, games, and Fisher One-Three.">
 <link rel="canonical" href="https://one-three.net">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -344,6 +347,9 @@
       </div>
 
     </div>
+    <div class="projects-toggle">
+      <button class="projects-toggle-btn" id="projectsToggle">View All Projects</button>
+    </div>
   </div>
 </section>
 
@@ -552,22 +558,63 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
+// Project show/hide — first 6 visible, rest hidden
+var allCards = document.querySelectorAll('.project-card');
+var toggleBtn = document.getElementById('projectsToggle');
+var showAll = false;
+var VISIBLE_COUNT = 6;
+
+function applyVisibility(filter) {
+  var visibleIdx = 0;
+  allCards.forEach(card => {
+    var matchesFilter = (filter === 'all' || card.dataset.tags === filter);
+    if (matchesFilter) {
+      if (!showAll && visibleIdx >= VISIBLE_COUNT) {
+        card.classList.add('hidden-card');
+        card.style.display = 'none';
+      } else {
+        card.classList.remove('hidden-card');
+        card.style.display = '';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }
+      visibleIdx++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  // Update toggle text and visibility
+  var hiddenCount = visibleIdx - VISIBLE_COUNT;
+  if (showAll || hiddenCount <= 0) {
+    toggleBtn.textContent = showAll ? 'Show Less' : 'View All Projects';
+    toggleBtn.style.display = hiddenCount <= 0 && !showAll ? 'none' : '';
+  } else {
+    toggleBtn.textContent = 'View All ' + visibleIdx + ' Projects';
+    toggleBtn.style.display = '';
+  }
+}
+
+function getActiveFilter() {
+  var active = document.querySelector('.proj-filter.active');
+  return active ? active.dataset.filter : 'all';
+}
+
+applyVisibility('all');
+
 // Project filters
 document.querySelectorAll('.proj-filter').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.proj-filter').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const filter = btn.dataset.filter;
-    document.querySelectorAll('.project-card').forEach(card => {
-      if (filter === 'all' || card.dataset.tags === filter) {
-        card.style.display = '';
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      } else {
-        card.style.display = 'none';
-      }
-    });
+    showAll = false;
+    applyVisibility(btn.dataset.filter);
   });
+});
+
+// Toggle show all / show less
+toggleBtn.addEventListener('click', () => {
+  showAll = !showAll;
+  applyVisibility(getActiveFilter());
 });
 
 // Reveal on scroll
