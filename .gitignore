@@ -14,3 +14,6 @@ Thumbs.db
 
 # Deploy output
 deploy/
+
+# Standard entries
+*.pid
